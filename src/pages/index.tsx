@@ -1,7 +1,29 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { useRouter } from "next/router";
 import { api } from "~/utils/api";
+
+import { type GetServerSidePropsContext } from "next";
+import { getServerAuthSession } from "../server/auth";
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const session = await getServerAuthSession(ctx);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}
 
 export default function Home() {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
